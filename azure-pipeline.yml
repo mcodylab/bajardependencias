@@ -47,8 +47,11 @@ steps:
         exit 1
     fi
 
+    # 📌 4️⃣ Instalar dependencias desde Artifactory
+    echo "📌 Instalando dependencias desde Artifactory..."
     pip install --no-cache-dir  --index-url=$(ARTIFACTORY_URL)  -r requirements.txt
   
+    # 📌 5️⃣ Verificar instalación de todas las dependencias
     echo "📌 Verificando instalación de todas las dependencias..."
     while IFS= read -r package; do
         package_name=$(echo "$package" | cut -d'=' -f1)  # Extraer solo el nombre del paquete
