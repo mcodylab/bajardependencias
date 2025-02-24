@@ -26,19 +26,17 @@ steps:
       # 📌 2️⃣ Validar si las dependencias existen en JFrog antes de instalar
     echo "📌 Validando disponibilidad de dependencias en Artifactory..."
     MISSING_PACKAGES=()
-    
-    while IFS= read -r package; do
-        package_name=$(echo "$package" | cut -d'=' -f1)  # Extraer solo el nombre del paquete
-        PKG_URL="$(PACKAGE_URL)/${package_name}/"
 
-        # Verificar si el paquete existe en JFrog Artifactory
-        if ! curl --silent --fail -u $(JFROG_USERNAME):$(JFROG_PASSWORD) "$PKG_URL" > /dev/null; then
-            echo "❌ $package_name NO existe en Artifactory"
-            MISSING_PACKAGES+=("$package_name")
-        else
-            echo "✅ $package_name encontrado en Artifactory."
-        fi
-    done < <(grep -Eo '^[^#]+' requirements.txt | awk '{print $1}')
+    PKG_URL="https://devopsm.jfrog.io/artifactory/api/pypi/pypi-local/simple/camelcase/"
+    if ! curl --silent --fail -u $(JFROG_USERNAME):$(JFROG_PASSWORD) "$PKG_URL" > /dev/null; then
+    echo "❌ ERROR: La dependencia no existe en Artifactory: $PKG_URL"
+    exit 1  # Falla el pipeline
+    else
+    echo "✅ Dependencia encontrada en Artifactory: $PKG_URL"
+    fi
+
+    
+
 
     # 📌 3️⃣ Si hay paquetes faltantes, detener el pipeline
     if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
